@@ -5,8 +5,8 @@
 
 using namespace std; 
 
-string check_correct_characters(string s);
-string point_system(string player_one_string, string player_two_string);
+string check_correct_characters(string& s);
+string point_system(const string& player_one_string, const string& player_two_string);
 
 int main()
 {
@@ -30,7 +30,7 @@ int main()
     return 0;
 }   
 
-string check_correct_characters(string s)
+string check_correct_characters(string& s)
 {
     // Checks each character in string for conditions
     for(int i = 0; i < s.length(); i++)
@@ -52,11 +52,10 @@ string check_correct_characters(string s)
     return s;
 }
 
-string point_system(string player_one_string, string player_two_string)
+string point_system(const string& player_one_string, const string& player_two_string)
 {
-    int points_one = 0;
-    int points_two = 0;
     string winner;
+    int points_one = 0, points_two = 0;
 
     // Create an unordered_map to store the letter-value pairs
     unordered_map<char, int> letterValues;
@@ -89,25 +88,28 @@ string point_system(string player_one_string, string player_two_string)
     letterValues['Y'] = 4;
     letterValues['Z'] = 10;
 
-    // Tally Points using map
-    for (int i = 0; i < player_one_string.length(); i++)
+    // Tally points for Player 1
+    for (size_t i = 0; i < player_one_string.length(); ++i)
     {
-        points_one += (int) letterValues[player_one_string[i]];
+        points_one += letterValues[player_one_string[i]];
     }
 
-    for (int i = 0; i < player_two_string.length(); i++)
+    // Tally points for Player 2
+    for (size_t i = 0; i < player_two_string.length(); ++i)
     {
-        points_two += (int) letterValues[player_two_string[i]];
+        points_two += letterValues[player_two_string[i]];
     }
 
     // Checker Winner by points
     if (points_one > points_two)
     {
         winner = "Player 1 wins!";
-    } else if (points_two == points_one)
+    } 
+    else if (points_two == points_one)
     {
         winner = "Tie!";
-    } else
+    } 
+    else
     {
         winner = "Player 2 wins!";
     }
