@@ -8,7 +8,7 @@ using namespace std;
 string check_correct_characters(string s);
 string point_system(string player_one_string, string player_two_string);
 
-int main(void)
+int main()
 {
 
     string Player1String; 
@@ -16,6 +16,7 @@ int main(void)
 
     cout << "Player 1: ";
     cin >> Player1String;
+
 
     cout << "Player 2: ";
     cin >> Player2String;
@@ -26,7 +27,7 @@ int main(void)
     string winner = point_system(Player1StringCleaned, Player2StringCleaned);
 
     cout << winner << endl;
-
+    return 0;
 }   
 
 string check_correct_characters(string s)
@@ -35,15 +36,15 @@ string check_correct_characters(string s)
     for(int i = 0; i < s.length(); i++)
     {
         // Ensure not number or special syumsol
-        if (s[i] >= 'Z')
+        if (s[i] >= 'z' || s[i] <= 'A')
         {
-            s.erase(i);
+            s.erase(i, i);
         }
 
         // changing to lower character
-        if (s[i] >= 'A' && s[i] <= 'Z')
+        if (s[i] >= 'a' && s[i] <= 'z')
         {
-            s[i] = s[i] - 20;
+            s[i] = s[i] - 32;
 
         }
     }
@@ -56,6 +57,7 @@ string point_system(string player_one_string, string player_two_string)
     int points_one = 0;
     int points_two = 0;
     string winner;
+
     // Create an unordered_map to store the letter-value pairs
     unordered_map<char, int> letterValues;
 
@@ -87,6 +89,7 @@ string point_system(string player_one_string, string player_two_string)
     letterValues['Y'] = 4;
     letterValues['Z'] = 10;
 
+    // Tally Points using map
     for (int i = 0; i < player_one_string.length(); i++)
     {
         points_one += (int) letterValues[player_one_string[i]];
@@ -94,19 +97,19 @@ string point_system(string player_one_string, string player_two_string)
 
     for (int i = 0; i < player_two_string.length(); i++)
     {
-        points_two += (int) letterValues[player_one_string[i]];
+        points_two += (int) letterValues[player_two_string[i]];
     }
 
     // Checker Winner by points
     if (points_one > points_two)
     {
-        winner = "Player One wins!";
-    } else if (points_two < points_one)
-    {
-        winner = "Player Two wins!";
-    } else
+        winner = "Player 1 wins!";
+    } else if (points_two == points_one)
     {
         winner = "Tie!";
+    } else
+    {
+        winner = "Player 2 wins!";
     }
 
     return winner; 
