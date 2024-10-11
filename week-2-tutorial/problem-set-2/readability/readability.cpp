@@ -38,11 +38,12 @@ using namespace std;
 
 void initialiseColemanLiauIndex(unordered_map<int, string>& colemanLiauIndex);
 float calculateAverageNumberLetterPer100Words(const string& inputString);
-float calculateAverageNumberSetencesPer100Words(const string& inputString);
+float calculateAverageNumberSentencesPer100Words(const string& inputString);
+void runTest();
 
 int main()
 {
-    string inputString = "Harry Potter was a highly unusual boy in many ways. For one thing, he hated the summer holidays more than any other time of year. For another, he really wanted to do his homework, but was forced to do it in secret, in the dead of the night. And he also happened to be a wizard.";
+    string inputString;
     float colemanLiauScore; 
     string grade; 
 
@@ -51,23 +52,22 @@ int main()
     initialiseColemanLiauIndex(colemanLiauIndex);
     
     // Takes a input from user
-    //cout << "Text : ";
-    //cin >> inputString;
-    
+    cout << "Text : ";
+    getline(cin, inputString);
 
     // Calculate Average numbers of letter per 100 words
-    float averageLetterPer100Words = calculateAverageNumberLetterPer100Words(inputString);
+    float L = calculateAverageNumberLetterPer100Words(inputString);
 
     // Calculate Average number of sentences per 100 words
-    float averageSentencesPer100Words = calculateAverageNumberSetencesPer100Words(inputString);
+    float S = calculateAverageNumberSentencesPer100Words(inputString);
 
     // Combine both metric into a score
-    colemanLiauScore = (0.0588 * averageLetterPer100Words) - (0.296 * averageSentencesPer100Words) - 15.8;
+    colemanLiauScore = (0.0588 * L) - (0.296 * S) - 15.8;
 
     // Round for map 
     int closestWholeNumber = round(colemanLiauScore);
     
-    if (closestWholeNumber > 17) // only rounded score not in map is over 17
+    if (closestWholeNumber >= 17) // only rounded score not in map is over 17
     {
         grade = "Graduate Level";
     } else if (closestWholeNumber <= 1)
@@ -105,78 +105,55 @@ void initialiseColemanLiauIndex(unordered_map<int, string>& colemanLiauIndex)
     colemanLiauIndex[17] = "Graduate Level";
 }
 
+
 float calculateAverageNumberLetterPer100Words(const string& inputString)
 {
-    int totalLetterCount = 0, totalSpacesCount = 0, numberOfTimeHit100 = 1;
-    float average = 0.0;
-    
-    for (int idx = 0; idx < inputString.length(); idx++)
+    int totalLetterCount = 0, totalWordCount = 0, count100 = 0;
+    float averageLetters;
+    // Calculate letter count and word count
+    for (int i = 0; i < inputString.length(); i++)
     {
-        if (( inputString[idx] >= 'A' && inputString[idx] <= 'Z')|| (inputString[idx] >=  'a' && inputString[idx] <=  'z'))  // Calculate a total number of letter
+        if ((inputString[i] >= 'A' && inputString[i] <= 'Z') || (inputString[i] >= 'a' && inputString[i] <= 'z')) // Count letters
         {
-            totalLetterCount += 1;
-        } else if (inputString[idx] == ' ') // Add total number of spaces 
-        {
-            totalSpacesCount += 1;
+            totalLetterCount++;
         }
-
-        // There is 99 spaces in 100 words including end and start 
-        if (totalSpacesCount - 1 == 100)
+        if (inputString[i] == ' ' || inputString[i] == '\n' || inputString[i] == '\t') // Count words by spaces/newlines/tabs
         {
-            average = (float)totalLetterCount / ((float)totalSpacesCount + 1 );
-            numberOfTimeHit100 += 1;
-
-            // We want to restart since we calulate average over 100 words
-            totalLetterCount = 0;
-            totalSpacesCount = 0;
+            totalWordCount++;
         }
     }
 
-    if (numberOfTimeHit100 == 1)
-    {
-        average = (float)totalLetterCount / ((float)totalSpacesCount + 1); 
-    }
+    // did we hit 100 words check, +1 since we started with 0 word count, count end word.
+    averageLetters = (totalLetterCount > 0) ? 
+                    (static_cast<float>(totalLetterCount) / static_cast<float>(totalWordCount + 1)) * 100: 
+                    0;
 
-    // Using Expecation per 100 words
-    float score = (float)average / (float)numberOfTimeHit100;
-    return  score;
+    return averageLetters;
 }
 
-float calculateAverageNumberSetencesPer100Words(const string& inputString)
+float calculateAverageNumberSentencesPer100Words(const string& inputString)
 {
-    int wordCount = 1, fullStopCount = 0, numberOfTimeHit100 = 1;
-    float average = 0.0;
-
-    // Calculates Expectation
-    for (int idx = 0; idx < inputString.length(); idx++)
+    int sentenceCount = 0, wordCount = 0;
+    float averageWord;
+    // Calculate word count and sentence count
+    for (int i = 0; i < inputString.length(); i++)
     {
-        // Counter for hittig 100 words
-        if (inputString[idx] == ' ')
+        if (inputString[i] == ' ' || inputString[i] == '\n' || inputString[i] == '\t') // Count words by spaces/newlines/tabs
         {
-            wordCount += 1;
-        } else if (inputString[idx] == '.') // Counts sentences
-        {   
-            fullStopCount += 1;
+            wordCount++;
+        } else if (inputString[i] == '.' || inputString[i] == '?' || inputString[i] == '!') // Counts sentences
+        {
+            sentenceCount++;
         }
 
-        // check if words if 100 
-        if (wordCount == 100)
-        {
-            average = (float)wordCount / (float)fullStopCount;
-            numberOfTimeHit100 += 1;
-
-            // We want to restart since we calulate average over 100 words
-            wordCount = 0;
-            fullStopCount = 0;
-        }
-    }
-    
-    if (numberOfTimeHit100 == 1)
-    {
-        average = (float)wordCount / (float)fullStopCount;
+       
     }
 
 
-    float score = average / numberOfTimeHit100;
-    return score;
+    // Calculate average sentences per 100 words
+    averageWord = (sentenceCount > 0) ? 
+                (static_cast<float>(sentenceCount) / static_cast<float>(wordCount + 1)) * 100: 
+                static_cast<float>(wordCount) * 100;
+
+    return averageWord;
 }
